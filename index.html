@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Hit & Blow</title>
+<style>
+    #choiceNumber{
+        font-size:60px;
+        width:300px;
+        height:80px;
+        background-color:lavender;
+        text-align:center;
+        border:solid 3px rgb(43, 46, 226);    
+    }
+    #field{
+        background-color:rgb(222, 135, 203);
+        font-size:20px;     
+    }
+    body {
+        width: 50%;
+        max-width: 800px;
+        min-width: 480px;
+        margin: 0 auto;
+    }
+</style>
+</head>
+<body>
+    <div style="font-size:40px; color:rgb(0, 0, 0);">
+        Hit & Blow ゲーム!
+        <button id="startBtn" onclick="newGame()">スタート</button>
+    </div>
+    <div class="hidden_box">
+        <label for="label">ルール説明表示</label>
+        <input type="checkbox" id="label"/>
+        <div class="hidden_show">
+              <p>ヒットアンドブローは、0から9の数字で4ケタの数字を作り、その数字を予測していくゲームです。</p>
+              <p>1ターンずつ4ケタの数字を予測し、予測した数字が位置も数字もあっている場合は「ヒット」、位置は間違っているが数字は合っているという場合は「ブロー」と表示されます。</p>
+              <p>「ヒット」や「ブロー」の判定から数字を予測していき、4ケタすべての数字を揃えるゲームです。</p>
+        </div>
+    </div>
+    <div id="choiceNumber"></div>
+    <div>決定はEnter、全消しはDeleteや数字はキーボード入力でも可能です</div>
+    <div id="enter"></div>
+    <div id="field"></div>
+<script>
+    let arrayChoice = ["0","1","2","3","4","5","6","7","8","9","Delete","Enter"];
+    for (let i=0; i<12; i++){								
+            let newBtn = document.createElement("button");		
+            newBtn.textContent = arrayChoice[i];				
+            newBtn.onclick = btnClick;							
+            enter.appendChild(newBtn);		
+    }
+
+    let ansNum = [], queNum = [], disNum = [], turn, hit, blow;
+
+    function newGame(){
+        field.innerText = "";
+        ansNum = ["_","_","_","_"];
+        turn = 1;
+        disNum = document.getElementById("choiceNumber");
+        disNum.innerText = ansNum[0]+ansNum[1]+ansNum[2]+ansNum[3];
+        document.getElementById("startBtn").style.visibility = "hidden";
+        document.addEventListener("keydown", keyPush);
+        selectNumber();         
+    }
+
+    function selectNumber(){
+        do{
+            let numList = ["0","1","2","3","4","5","6","7","8","9"];
+            for(let i=0; i<4; i++){
+                let ran = Math.floor(Math.random()*numList.length);
+                queNum[i] = numList[ran];
+                numList.splice(ran,1);
+            }
+        }while(queNum[0]==0);
+        console.log(queNum);       
+    }
+
+    function keyPush(e){
+        if (e.key=="Enter"){
+            judge();
+        }
+        if (e.key=="Delete" || e.key==" "){
+            ansNum = ["_","_","_","_"];
+            disNum.innerText = ansNum[0]+ansNum[1]+ansNum[2]+ansNum[3];
+            return;             
+        }
+        if (Number.isInteger(Number(e.key))==false){
+            return;
+        }
+        if (ansNum.indexOf("_")!=-1){
+            ansNum[ansNum.indexOf("_")] = e.key;
+            disNum.innerText = ansNum[0]+ansNum[1]+ansNum[2]+ansNum[3];     
+        }       
+    }
+
+    function btnClick(e){
+        let pushNum = e.target.textContent;
+        if (pushNum=="Enter"){
+            judge();
+        }
+        if (pushNum=="Delete" || pushNum==" "){
+            ansNum = ["_","_","_","_"];
+            disNum.innerText = ansNum[0]+ansNum[1]+ansNum[2]+ansNum[3];
+            return;         
+        }
+        if (Number.isInteger(Number(pushNum))==false){
+            return;
+        }
+        if (ansNum.indexOf("_")!=-1){
+            ansNum[ansNum.indexOf("_")] = pushNum;
+            disNum.innerText = ansNum[0]+ansNum[1]+ansNum[2]+ansNum[3];     
+        }           
+    }
+
+    function judge(){
+        if (ansNum[3]=="_"){
+            return;
+        }
+        hit = 0;
+        blow = 0;
+        for (let i=0; i<4; i++){
+            if (ansNum[i]==queNum[i]){
+                hit += 1;
+            }
+            else if (queNum.indexOf(ansNum[i])!=-1){
+                blow += 1;
+            }     
+        }
+        let str = ansNum[0]+ansNum[1]+ansNum[2]+ansNum[3];
+        let result = document.createElement("div");
+        result.innerText = turn + "回目の解答[ " + str + " ]　" + hit + " HIT │ " + blow + " BLOW";
+        field.appendChild(result);
+        if (hit==4){
+            field.innerText = "おめでとうございます！\n" + turn + "回目で正解しました！";
+            document.getElementById("startBtn").style.visibility = "visible";
+            ansNum = ["", "", "", ""];
+            disNum.innerText = ansNum[0]+ansNum[1]+ansNum[2]+ansNum[3];
+            document.removeEventListener("keydown", keyPush);       
+        }
+        else{
+            turn += 1;
+            ansNum = ["_","_","_","_"];
+            disNum.innerText = ansNum[0]+ansNum[1]+ansNum[2]+ansNum[3];
+            return;             
+        }           
+    }
+</script>
+</body>
+</html>
